@@ -11,15 +11,12 @@ Description: >
     Finally, it deploys a pair of example ECS services from containers published in
     Amazon EC2 Container Registry (Amazon ECR).
 
-    Last Modified: 22nd September 2016
-    Author: Paul Maddox <pmaddox@amazon.com>
-
 Resources:
 
     VPC:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://github.com/sg4j/aws-ecs-ec2/blob/master/infrastructure/vpc.yaml
+            TemplateURL:  https://s3.amazonaws.com/sgforaws-spring-cloud-nexus-repo/ecs-template/vpc.yaml
             Parameters:
                 EnvironmentName:    !Ref AWS::StackName
                 VpcCIDR:            10.180.0.0/16
@@ -31,7 +28,7 @@ Resources:
     SecurityGroups:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://github.com/sg4j/aws-ecs-ec2/blob/master/infrastructure/security-groups.yaml
+            TemplateURL: https://s3.amazonaws.com/sgforaws-spring-cloud-nexus-repo/ecs-template/security-groups.yaml
             Parameters:
                 EnvironmentName: !Ref AWS::StackName
                 VPC: !GetAtt VPC.Outputs.VPC
@@ -39,7 +36,7 @@ Resources:
     ALB:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://github.com/sg4j/aws-ecs-ec2/blob/master/infrastructure/load-balancers.yaml
+            TemplateURL: https://s3.amazonaws.com/sgforaws-spring-cloud-nexus-repo/ecs-template/load-balancers.yaml
             Parameters:
                 EnvironmentName: !Ref AWS::StackName
                 VPC: !GetAtt VPC.Outputs.VPC
@@ -49,11 +46,11 @@ Resources:
     ECS:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://github.com/sg4j/aws-ecs-ec2/blob/master/infrastructure/ecs-cluster.yaml
+            TemplateURL: https://s3.amazonaws.com/sgforaws-spring-cloud-nexus-repo/ecs-template/ecs-cluster.yaml
             Parameters:
                 EnvironmentName: !Ref AWS::StackName
-                InstanceType: t2.large
-                ClusterSize: 4
+                InstanceType: t2.micro
+                ClusterSize: 2
                 VPC: !GetAtt VPC.Outputs.VPC
                 SecurityGroup: !GetAtt SecurityGroups.Outputs.ECSHostSecurityGroup
                 Subnets: !GetAtt VPC.Outputs.PrivateSubnets
