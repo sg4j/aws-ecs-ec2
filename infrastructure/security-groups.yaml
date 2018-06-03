@@ -41,7 +41,7 @@ Resources:
             GroupDescription: Access to the load balancer that sits in front of ECS
             SecurityGroupIngress:
                 # Allow access from anywhere to our ECS services
-                - CidrIp: 172.29.192.1/0
+                - CidrIp: 71.126.165.82/32
                   IpProtocol: -1
             Tags:
                 - Key: Name

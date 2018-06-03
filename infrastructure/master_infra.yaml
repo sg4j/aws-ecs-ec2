@@ -19,7 +19,7 @@ Resources:
     VPC:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://s3.amazonaws.com/ecs-refarch-cloudformation/infrastructure/vpc.yaml
+            TemplateURL: https://github.com/sg4j/aws-ecs-ec2/blob/master/infrastructure/vpc.yaml
             Parameters:
                 EnvironmentName:    !Ref AWS::StackName
                 VpcCIDR:            10.180.0.0/16
@@ -31,7 +31,7 @@ Resources:
     SecurityGroups:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://s3.amazonaws.com/ecs-refarch-cloudformation/infrastructure/security-groups.yaml
+            TemplateURL: https://github.com/sg4j/aws-ecs-ec2/blob/master/infrastructure/security-groups.yaml
             Parameters:
                 EnvironmentName: !Ref AWS::StackName
                 VPC: !GetAtt VPC.Outputs.VPC
@@ -39,7 +39,7 @@ Resources:
     ALB:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://s3.amazonaws.com/ecs-refarch-cloudformation/infrastructure/load-balancers.yaml
+            TemplateURL: https://github.com/sg4j/aws-ecs-ec2/blob/master/infrastructure/load-balancers.yaml
             Parameters:
                 EnvironmentName: !Ref AWS::StackName
                 VPC: !GetAtt VPC.Outputs.VPC
@@ -49,7 +49,7 @@ Resources:
     ECS:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://s3.amazonaws.com/ecs-refarch-cloudformation/infrastructure/ecs-cluster.yaml
+            TemplateURL: https://github.com/sg4j/aws-ecs-ec2/blob/master/infrastructure/ecs-cluster.yaml
             Parameters:
                 EnvironmentName: !Ref AWS::StackName
                 InstanceType: t2.large
