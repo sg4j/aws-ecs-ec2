@@ -23,57 +23,22 @@ Parameters:
     Path:
         Description: The path to register with the Application Load Balancer
         Type: String
-        Default: /
+        Default: /greeting/*
 
 Resources:
-
-    Service:
-        Type: AWS::ECS::Service
-        DependsOn: ListenerRule
-        Properties:
-            Cluster: !Ref Cluster
-            Role: !Ref ServiceRole
-            DesiredCount: !Ref DesiredCount
-            TaskDefinition: !Ref TaskDefinition
-            LoadBalancers:
-                - ContainerName: "springboot-gs-service"
-                  ContainerPort: 8080
-                  TargetGroupArn: !Ref TargetGroup
-
-    TaskDefinition:
-        Type: AWS::ECS::TaskDefinition
-        Properties:
-            Family: !Join ['', [!Ref 'AWS::StackName', -ecs-demo-app]]
-            ContainerDefinitions:
-                - Name: springboot-gs-service
-                  Essential: true
-                  Image: sg4j/gs-spring-boot:latest
-                  Memory: 256
-                  EntryPoint: ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
-                  PortMappings:
-                    - ContainerPort: 8080
-                  LogConfiguration:
-                    LogDriver: awslogs
-                    Options:
-                        awslogs-group: !Ref AWS::StackName
-                        awslogs-region: !Ref AWS::Region
-
-    CloudWatchLogsGroup:
-        Type: AWS::Logs::LogGroup
-        Properties:
-            LogGroupName: !Ref AWS::StackName
-            RetentionInDays: 14
 
     TargetGroup:
         Type: AWS::ElasticLoadBalancingV2::TargetGroup
         Properties:
             VpcId: !Ref VPC
-            Port: 80
+            # This port needs to map to HOST CONTAINER PORT where ECS instances are running.
+            # Corrosponds to TaskDefinition-HostPort setting.
+            Port: 8087
             Protocol: HTTP
             Matcher:
                 HttpCode: 200-299
             HealthCheckIntervalSeconds: 10
-            HealthCheckPath: /actuator/health
+            HealthCheckPath: /greeting/hello
             HealthCheckProtocol: HTTP
             HealthCheckTimeoutSeconds: 5
             HealthyThresholdCount: 2
@@ -90,6 +55,44 @@ Resources:
             Actions:
                 - TargetGroupArn: !Ref TargetGroup
                   Type: forward
+
+    TaskDefinition:
+        Type: AWS::ECS::TaskDefinition
+        Properties:
+            Family: !Join ['', [!Ref 'AWS::StackName', -ecs-demo-app]]
+            ContainerDefinitions:
+                - Name: springboot-gs-service
+                  Essential: true
+                  Image: sg4j/gs-spring-boot:latest
+                  Memory: 256
+                  EntryPoint: ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+                  PortMappings:
+                  - HostPort: 8087
+                    ContainerPort: 8080
+                  LogConfiguration:
+                    LogDriver: awslogs
+                    Options:
+                        awslogs-group: !Ref AWS::StackName
+                        awslogs-region: !Ref AWS::Region
+
+    Service:
+        Type: AWS::ECS::Service
+        DependsOn: ListenerRule
+        Properties:
+            Cluster: !Ref Cluster
+            Role: !Ref ServiceRole
+            DesiredCount: !Ref DesiredCount
+            TaskDefinition: !Ref TaskDefinition
+            LoadBalancers:
+                - ContainerName: springboot-gs-service
+                  ContainerPort: 8080
+                  TargetGroupArn: !Ref TargetGroup
+
+    CloudWatchLogsGroup:
+        Type: AWS::Logs::LogGroup
+        Properties:
+            LogGroupName: !Ref AWS::StackName
+            RetentionInDays: 14
 
     # This IAM Role grants the service access to register/unregister with the
     # Application Load Balancer (ALB). It is based on the default documented here:
